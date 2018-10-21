@@ -9,8 +9,11 @@ let wandControlSystem = {
   cLED:'', // 2 Isabella: blue, Olivia: yellow
   dLED:'', // 3 Isabella: red, Olivia: red
   accelerometer:'',
-  maxAcceleration:0
+  isActive:false
 };
+
+let timeToLeaveLEDsOnAfterWaivingWand = 1500; // milliseconds
+let timeToLeaveLEDsOnAfterSpell = 4500; // milliseconds
 
 
 
@@ -68,17 +71,82 @@ async function initializePhidgetBoards( wandControlSystem) {
   return true;
 }
 
+function turnOffAllLEDs() {
+    console.log(`turning off`);
+    wandControlSystem.aLED.setState(false);
+    wandControlSystem.bLED.setState(false);
+    wandControlSystem.cLED.setState(false);
+    wandControlSystem.dLED.setState(false);
+}
+
+function turnOnLEDs(numberOfLEDs) {
+    switch (numberOfLEDs) {
+        case 0:
+            turnOffAllLEDs();
+            break;
+        case 1:
+            wandControlSystem.aLED.setState(true);
+            wandControlSystem.bLED.setState(false);
+            wandControlSystem.cLED.setState(false);
+            wandControlSystem.dLED.setState(false);
+            break;
+        case 2:
+            wandControlSystem.aLED.setState(true);
+            wandControlSystem.bLED.setState(true);
+            wandControlSystem.cLED.setState(false);
+            wandControlSystem.dLED.setState(false);
+            break;
+        case 3:
+            wandControlSystem.aLED.setState(true);
+            wandControlSystem.bLED.setState(true);
+            wandControlSystem.cLED.setState(true);
+            wandControlSystem.dLED.setState(false);
+            break;
+        case 4:
+            wandControlSystem.aLED.setState(true);
+            wandControlSystem.bLED.setState(true);
+            wandControlSystem.cLED.setState(true);
+            wandControlSystem.dLED.setState(true);
+            break;
+        default:
+            turnOffAllLEDs();
+    }
+}
+
 function runWandProgram() {
 
 	wandControlSystem.accelerometer.onAccelerationChange = function (acc, timestamp) {
         var gacc = this.getAcceleration();
         let currentAcceleration = gacc[0]+gacc[1]+gacc[2];
-        console.log(`max accel: ${wandControlSystem.maxAcceleration}`);
-        let dLEDstatus = wandControlSystem.dLED.getState();
-        if (currentAcceleration >= wandControlSystem.maxAcceleration) {
-            console.log(`new max: ${currentAcceleration}`);
-            wandControlSystem.maxAcceleration = currentAcceleration;
-            wandControlSystem.dLED.setState(!dLEDstatus);
+        console.log(currentAcceleration);
+        if (!wandControlSystem.isActive && currentAcceleration >0.5 && currentAcceleration <2) {
+            wandControlSystem.isActive = true;
+            turnOnLEDs(1);
+            setTimeout(() => {
+                turnOffAllLEDs()
+                wandControlSystem.isActive = false;
+            }, timeToLeaveLEDsOnAfterWaivingWand);
+        } else if (!wandControlSystem.isActive && currentAcceleration >= 2 && currentAcceleration < 4) {
+            wandControlSystem.isActive = true;
+            turnOnLEDs(2);
+            setTimeout(() => {
+                turnOffAllLEDs()
+                wandControlSystem.isActive = false;
+            }, timeToLeaveLEDsOnAfterWaivingWand);
+        } else if (!wandControlSystem.isActive && currentAcceleration >= 4 && currentAcceleration < 6) {
+            wandControlSystem.isActive = true;
+            turnOnLEDs(3);
+            setTimeout(() => {
+                turnOffAllLEDs()
+                wandControlSystem.isActive = false;
+            }, timeToLeaveLEDsOnAfterWaivingWand);
+        } else if (!wandControlSystem.isActive && currentAcceleration >= 6) {
+            wandControlSystem.isActive = true;
+            turnOnLEDs(4);
+            setTimeout(() => {
+                turnOffAllLEDs()
+                wandControlSystem.isActive = false;
+            }, timeToLeaveLEDsOnAfterSpell);
         }
         
 	};
