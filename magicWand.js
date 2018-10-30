@@ -13,7 +13,7 @@ let wandControlSystem = {
 };
 
 let timeToLeaveLEDsOnAfterWaivingWand = 1500; // milliseconds
-let timeToLeaveLEDsOnAfterSpell = 4500; // milliseconds
+let timeToLeaveLEDsOnAfterSpell = 10000; // milliseconds
 
 
 
@@ -114,33 +114,32 @@ function turnOnLEDs(numberOfLEDs) {
 }
 
 function runWandProgram() {
-
 	wandControlSystem.accelerometer.onAccelerationChange = function (acc, timestamp) {
-        var gacc = this.getAcceleration();
+        let gacc = this.getAcceleration();
         let currentAcceleration = gacc[0]+gacc[1]+gacc[2];
         console.log(currentAcceleration);
-        if (!wandControlSystem.isActive && currentAcceleration >0.5 && currentAcceleration <2) {
+        if (!wandControlSystem.isActive && currentAcceleration >0.25 && currentAcceleration <1.5) {
             wandControlSystem.isActive = true;
             turnOnLEDs(1);
             setTimeout(() => {
                 turnOffAllLEDs()
                 wandControlSystem.isActive = false;
             }, timeToLeaveLEDsOnAfterWaivingWand);
-        } else if (!wandControlSystem.isActive && currentAcceleration >= 2 && currentAcceleration < 4) {
+        } else if (!wandControlSystem.isActive && currentAcceleration >= 1.5 && currentAcceleration < 3) {
             wandControlSystem.isActive = true;
             turnOnLEDs(2);
             setTimeout(() => {
                 turnOffAllLEDs()
                 wandControlSystem.isActive = false;
             }, timeToLeaveLEDsOnAfterWaivingWand);
-        } else if (!wandControlSystem.isActive && currentAcceleration >= 4 && currentAcceleration < 6) {
+        } else if (!wandControlSystem.isActive && currentAcceleration >= 3 && currentAcceleration < 5) {
             wandControlSystem.isActive = true;
             turnOnLEDs(3);
             setTimeout(() => {
                 turnOffAllLEDs()
                 wandControlSystem.isActive = false;
             }, timeToLeaveLEDsOnAfterWaivingWand);
-        } else if (!wandControlSystem.isActive && currentAcceleration >= 6) {
+        } else if (!wandControlSystem.isActive && currentAcceleration >= 5) {
             wandControlSystem.isActive = true;
             turnOnLEDs(4);
             setTimeout(() => {
@@ -150,9 +149,4 @@ function runWandProgram() {
         }
         
 	};
-
-	ch.onError = function (code, msg) {
-		console.error("Channel error", msg);
-	};
-
 }
