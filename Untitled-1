@@ -1,0 +1,15 @@
+[Unit]
+Description=Node for magic wand
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExcecStart=/usr/bin/node /home/code/hermione-magic-wand/magicWand.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
